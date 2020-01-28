@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "835276515103",
+    "firebase_url": "https://myfavlocalesapp-d9026.firebaseio.com",
+    "project_id": "myfavlocalesapp-d9026",
+    "storage_bucket": "myfavlocalesapp-d9026.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:835276515103:android:694b3ed51361cda904b22a",
+        "android_client_info": {
+          "package_name": "com.example.android.myfavlocalesapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "835276515103-t6c5ce7fsmpq3nahp42gun9gha5f3k8e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.android.myfavlocalesapp",
+            "certificate_hash": "f6f3259496142967bb4b5f5f3933710890572888"
+          }
+        },
+        {
+          "client_id": "835276515103-r2nr5e9rih1ohqsjanot4duaju61n77i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuvZtvOqyP2KD4vLDBlj_-BMr8Ux4YpDk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "835276515103-r2nr5e9rih1ohqsjanot4duaju61n77i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
