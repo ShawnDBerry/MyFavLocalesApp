@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/food"
+        android:title="Food">
+
+        <menu>
+            <item
+                android:id="@+id/foodfav1"
+                android:title="Add To Favs" />
+
+            <item
+                android:id="@+id/foodfav2"
+                android:title="Add To Favs" />
+
+            <item
+                android:id="@+id/foodfav3"
+                android:title="Add To Favs" />
+        </menu>
+    </item>
+
+
+    <item
+        android:id="@+id/hospitals"
+        android:title="Hospitals">
+
+        <menu>
+            <item
+                android:id="@+id/hospitalfav1"
+                android:title="Add To Favs" />
+
+            <item
+                android:id="@+id/hospitalfav2"
+                android:title="Add To Favs" />
+
+            <item
+                android:id="@+id/hospitalfav3"
+                android:title="Add To Favs" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/entertainment"
+        android:title="Entertainment">
+
+        <menu>
+            <item
+                android:id="@+id/entertainmentfav1"
+                android:title="Add To Favs" />
+
+            <item
+                android:id="@+id/entertainmentfav2"
+                android:title="Add To Favs" />
+
+            <item
+                android:id="@+id/entertainmentfav3"
+                android:title="Add To Favs" />
+        </menu>
+    </item>
+
+
+</menu>

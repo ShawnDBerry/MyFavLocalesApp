@@ -1,19 +1,28 @@
 package com.example.android.myfavlocalesapp.view;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.widget.Toast;
-
 import com.example.android.myfavlocalesapp.R;
+import com.example.android.myfavlocalesapp.model.Location;
 import com.example.android.myfavlocalesapp.model.User;
+import com.example.android.myfavlocalesapp.network.PlacesRetrofit;
 import com.example.android.myfavlocalesapp.viewmodel.LocationViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +30,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -28,14 +38,21 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LoginFragment.LoginDelegator {
 
     private GoogleMap mMap;
     public static final int REQUEST_CODE = 205;
+
+    private Observer<Location> myObserver;
+    private PlacesRetrofit placesRetrofit;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private LocationViewModel locationViewModel;
     private LoginFragment loginFragment = new LoginFragment();
@@ -43,14 +60,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
 
+    @BindView(R.id.menu_icon)
+    ImageView menuImageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        ButterKnife.bind(this);
+
         firebaseAuth = FirebaseAuth.getInstance();
 
         locationViewModel = ViewModelProviders.of(this).get(LocationViewModel.class);
+        myObserver = new Observer<Location>() {
+            @Override
+            public void onChanged(Location location) {
+
+            }
+        };
+
 
         checkIfUserLoggedIn();
 
@@ -96,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Toast.LENGTH_SHORT).show();
                     removeLoginFragment();
 
-                }else{
+                } else {
                     Toast.makeText(getApplicationContext(),
                             "what had happened was " + task.getException().getLocalizedMessage(),
                             Toast.LENGTH_SHORT).show();
@@ -119,11 +148,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
+
+                            removeLoginFragment();
+
                             Toast.makeText(getApplicationContext(),
                                     firebaseAuth.getCurrentUser().getDisplayName(),
                                     Toast.LENGTH_SHORT).show();
-                        }else {
+                        } else {
                             Toast.makeText(getApplicationContext(),
                                     task.getException().getLocalizedMessage(),
                                     Toast.LENGTH_LONG).show();
@@ -163,8 +195,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .title("Current Location").snippet(snippet));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLocation, zoomLevel));
+        mMap.setMyLocationEnabled(true);
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.fave_locale_menu_items, menu);
+        return true;
+    }
+
+    @OnClick(R.id.menu_icon)
+    public void showMenu(View view) {
+        Log.d("TAG_Q", "showMenu: in the method");
+        PopupMenu favMenu = new PopupMenu(this, view);
+        MenuInflater inflater = new MenuInflater(this);
+        inflater.inflate(R.menu.fave_locale_menu_items, favMenu.getMenu());
+        favMenu.show();
+        favMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.food:
+
+                }
+
+                return false;
+            }
+        });
+    }
+
+
 
     private void setUpLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -200,5 +262,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
+
+    private void setPoiClick(GoogleMap map) {
+        map.setOnPoiClickListener(new GoogleMap.OnPoiClickListener() {
+            @Override
+            public void onPoiClick(PointOfInterest pointOfInterest) {
+
+            }
+        });
+
+    }
+
 
 }

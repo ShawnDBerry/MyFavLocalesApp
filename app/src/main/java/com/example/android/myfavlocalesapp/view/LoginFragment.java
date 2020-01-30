@@ -63,31 +63,30 @@ public class LoginFragment extends Fragment {
     }
 
 
-
     private boolean checkloginUserInput() {
-        if(loginEmailEditText.getText().toString().trim().length() == 0
-                || loginPasswordEditText.getText().toString().trim().length() == 0){
+        if (loginEmailEditText.getText().toString().trim().length() == 0
+                || loginPasswordEditText.getText().toString().trim().length() == 0) {
             Toast.makeText(getContext(), "Email and Password cannot be empty", Toast.LENGTH_SHORT).show();
             return false;
-        }else
+        } else
             return true;
     }
 
-    private boolean checkSignUpUserInput(){
-        if(signUpEmailEditText.getText().toString().trim().length() == 0
-                || signUpPasswordEditText.getText().toString().trim().length() == 0){
+    private boolean checkSignUpUserInput() {
+        if (signUpEmailEditText.getText().toString().trim().length() == 0
+                || signUpPasswordEditText.getText().toString().trim().length() == 0) {
 
             Toast.makeText(getContext(), "Field cannot be empty.", Toast.LENGTH_SHORT).show();
             return false;
 
-        } else if(signUpPasswordEditText.getText().toString().trim().length() < 8){
+        } else if (signUpPasswordEditText.getText().toString().trim().length() < 8) {
 
             Toast.makeText(getContext(), "Password must be longer than 8 characters",
                     Toast.LENGTH_SHORT).show();
             return false;
 
-        } else if(!signUpPasswordEditText.getText().toString().trim()
-                .equals(signUpVerifyPasswordEditText.getText().toString().trim())){
+        } else if (!signUpPasswordEditText.getText().toString().trim()
+                .equals(signUpVerifyPasswordEditText.getText().toString().trim())) {
 
             Toast.makeText(getContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
             return false;
@@ -97,8 +96,8 @@ public class LoginFragment extends Fragment {
     }
 
     @OnClick(R.id.login_button)
-    public void loginUser(){
-        if(checkloginUserInput()){
+    public void loginUser() {
+        if (checkloginUserInput()) {
             String userName = signUpUserNameEditText.getText().toString().trim();
             String emailAddress = loginEmailEditText.getText().toString().trim();
             String password = loginPasswordEditText.getText().toString().trim();
@@ -109,8 +108,8 @@ public class LoginFragment extends Fragment {
     }
 
     @OnClick(R.id.signup_button)
-    public void signUpUser(){
-        if(checkSignUpUserInput()){
+    public void signUpUser() {
+        if (checkSignUpUserInput()) {
             String userName = signUpUserNameEditText.getText().toString().trim();
             String emailAddress = signUpEmailEditText.getText().toString().trim();
             String password = signUpPasswordEditText.getText().toString().trim();
@@ -119,13 +118,13 @@ public class LoginFragment extends Fragment {
     }
 
     @OnClick(R.id.signup_textview)
-    public void openSignUp(){
+    public void openSignUp() {
         signUpLayout.setVisibility(View.VISIBLE);
         logInLayout.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.signup_back_imageview)
-    public void onCloseSignUp(){
+    public void onCloseSignUp() {
         signUpLayout.setVisibility(View.GONE);
         logInLayout.setVisibility(View.VISIBLE);
     }
@@ -133,12 +132,13 @@ public class LoginFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        loginDelegator = (MapsActivity)context;
+        loginDelegator = (MapsActivity) context;
 
     }
 
-    interface LoginDelegator{
+    interface LoginDelegator {
         void signUpNewUser(User signUpUser);
+
         void loginUser(User loginUser);
     }
 }
