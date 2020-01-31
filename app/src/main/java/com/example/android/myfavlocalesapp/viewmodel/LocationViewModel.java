@@ -7,27 +7,32 @@ import androidx.lifecycle.AndroidViewModel;
 
 import com.example.android.myfavlocalesapp.database.LocationDatabase;
 import com.example.android.myfavlocalesapp.database.LocationEntity;
+import com.example.android.myfavlocalesapp.model.PlacesResponse;
+import com.example.android.myfavlocalesapp.network.PlacesRetrofit;
 
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class LocationViewModel extends AndroidViewModel {
-
+    private PlacesRetrofit placesRetrofit = new PlacesRetrofit();
     private LocationDatabase locationDatabase;
 
     public LocationViewModel(@NonNull Application application) {
         super(application);
         locationDatabase = LocationDatabase.getInstance(application);
     }
+    public Observable<PlacesResponse> getGoogleLocations(String latLng, int radius,
+                                                         String searchType, String searchKeyword) {
 
+       return placesRetrofit.getLocationsNearby(latLng, radius, searchType, searchKeyword).subscribeOn(Schedulers.io())
+               .observeOn(AndroidSchedulers.mainThread());
+    }
     Observable<List<LocationEntity>> getLocations(){
         return locationDatabase.locationDAO().getAllLocations();
     }
-
-    /*Observable<LocationDatabase> getLocation(String locationTitleName){
-        return locationDatabase.locationDAO().getLocation(locationTitleName);
-    }*/
 
     void addLocation(LocationEntity locationEntity){
         locationDatabase.locationDAO().insertLocation(locationEntity);

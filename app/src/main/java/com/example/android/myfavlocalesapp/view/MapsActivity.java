@@ -18,9 +18,13 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.android.myfavlocalesapp.R;
 import com.example.android.myfavlocalesapp.model.Location;
+import com.example.android.myfavlocalesapp.model.PlacesResponse;
+import com.example.android.myfavlocalesapp.model.Result;
 import com.example.android.myfavlocalesapp.model.User;
 import com.example.android.myfavlocalesapp.network.PlacesRetrofit;
 import com.example.android.myfavlocalesapp.viewmodel.LocationViewModel;
@@ -37,19 +41,22 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.gson.Gson;
 
 import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LoginFragment.LoginDelegator {
 
     private GoogleMap mMap;
     public static final int REQUEST_CODE = 205;
-
     private Observer<Location> myObserver;
     private PlacesRetrofit placesRetrofit;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -63,7 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @BindView(R.id.menu_icon)
     ImageView menuImageView;
 
-    @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
@@ -73,21 +80,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         firebaseAuth = FirebaseAuth.getInstance();
 
         locationViewModel = ViewModelProviders.of(this).get(LocationViewModel.class);
-        myObserver = new Observer<Location>() {
-            @Override
-            public void onChanged(Location location) {
 
-            }
-        };
-
-
+        setUpLocation();
         checkIfUserLoggedIn();
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
 
+    }
+
+    private void setUpMap() {
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = new SupportMapFragment();
+        mapFragment.getMapAsync(this);
     }
 
     private void checkIfUserLoggedIn() {
@@ -96,10 +99,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "User needs to be logged in", Toast.LENGTH_LONG).show();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.map, loginFragment)
+                    .replace(R.id.main_framelayout, loginFragment)
                     .commit();
-        } else
+
+        } else {
+            getLocationMap();
             Toast.makeText(this, "User: " + firebaseUser.getEmail(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void getLocationMap() {
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
 
@@ -139,6 +151,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .beginTransaction()
                 .remove(loginFragment)
                 .commit();
+        getLocationMap();
     }
 
     @Override
@@ -175,6 +188,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d("TAG_C", "Map ready...");
         mMap = googleMap;
 
         double lat = 33.9361684;
@@ -189,13 +203,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Add a marker homeMarker and move the camera
         LatLng homeLocation = new LatLng(lat, lng);
-
-        setUpLocation();
+        mMap.setMyLocationEnabled(true);
         mMap.addMarker(new MarkerOptions().position(homeLocation)
                 .title("Current Location").snippet(snippet));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLocation, zoomLevel));
-        mMap.setMyLocationEnabled(true);
 
     }
 
@@ -205,6 +217,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         inflater.inflate(R.menu.fave_locale_menu_items, menu);
         return true;
     }
+
 
     @OnClick(R.id.menu_icon)
     public void showMenu(View view) {
@@ -216,9 +229,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         favMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                double lat = 33.9361684;
+                double lng = -84.465229;
+                String latLng = lat + "," + lng;
                 switch (item.getItemId()) {
                     case R.id.food:
-
+                        searchPlaceOfInterest(item, latLng);
+                    case R.id.hospitals:
+                        searchPlaceOfInterest(item, latLng);
+                    case R.id.churches:
+                        searchPlaceOfInterest(item, latLng);
                 }
 
                 return false;
@@ -226,14 +246,59 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    private void searchPlaceOfInterest(MenuItem item, String latLng) {
+        compositeDisposable.add(
+                locationViewModel.getGoogleLocations(latLng, 10000,
+                        item.getTitle().toString(), item.getTitle().toString())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                new Consumer<PlacesResponse>() {
+                                    @Override
+                                    public void accept(PlacesResponse placesResponse) throws Exception {
 
+
+                                        Gson gson = new Gson();
+                                        String response = gson.toJson(placesResponse);
+
+                                        for (Result r : placesResponse.getResults()) {
+                                            double lat = r.getGeometry().getLocation().getLat();
+                                            double lng = r.getGeometry().getLocation().getLng();
+                                            LatLng location = new LatLng(lat, lng);
+
+                                            mMap.addMarker(
+                                                    new MarkerOptions()
+                                                            .position(location)
+                                                            .title(r.getPlaceId())
+                                            );
+                                        }
+
+                                        Log.d("TAG_Y", response);
+
+                                        Log.d("TAG_X", "Places received : " + placesResponse.getResults().size());
+                                    }
+                                }
+                        ));
+    }
+
+   /* void setUpRv(List<Loca> results){
+        MovieAdapter movieAdapter = new MovieAdapter(results, this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
+        movieSeachRecyclerView.setAdapter(movieAdapter);
+        movieSeachRecyclerView.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(movieSeachRecyclerView.getContext(),
+                layoutManager.getOrientation());
+        movieSeachRecyclerView.addItemDecoration(dividerItemDecoration);
+    }
+*/
 
     private void setUpLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                         == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
+            setUpMap();
+
         } else {
             requestPermission();
         }
@@ -249,8 +314,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.d("TAG_X", "Something here" + permissions.length);
 
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == REQUEST_CODE && permissions.length > 0) {
             if (permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&
                     grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 if (permissions[1].equals(Manifest.permission.CAMERA) &&
@@ -258,7 +324,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     requestPermission();
             } else if (permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&
                     permissions[1].equals(Manifest.permission.CAMERA)) {
-
+                setUpMap();
             }
         }
     }
