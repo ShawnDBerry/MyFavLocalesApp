@@ -47,6 +47,10 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.6.2'
 
+    //OkHttp
+    implementation "com.squareup.okhttp3:okhttp:4.2.1"
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.3.0'
+
     //ViewModelProvider
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
 

@@ -1,47 +1,57 @@
 
 package com.example.android.myfavlocalesapp.model;
 
+import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
 public class Result {
 
-    @SerializedName("address_components")
-    @Expose
-    private List<AddressComponent> addressComponents = null;
-    @SerializedName("formatted_address")
-    @Expose
-    private String formattedAddress;
     @SerializedName("geometry")
     @Expose
     private Geometry geometry;
+    @SerializedName("icon")
+    @Expose
+    private String icon;
+    @SerializedName("id")
+    @Expose
+    private String id;
+    @SerializedName("name")
+    @Expose
+    private String name;
+    @SerializedName("photos")
+    @Expose
+    private List<Photo> photos = null;
     @SerializedName("place_id")
     @Expose
     private String placeId;
+    @SerializedName("plus_code")
+    @Expose
+    private PlusCode plusCode;
+    @SerializedName("rating")
+    @Expose
+    private Double rating;
+    @SerializedName("reference")
+    @Expose
+    private String reference;
+    @SerializedName("scope")
+    @Expose
+    private String scope;
     @SerializedName("types")
     @Expose
     private List<String> types = null;
-    @SerializedName("postcode_localities")
+    @SerializedName("user_ratings_total")
     @Expose
-    private List<String> postcodeLocalities = null;
-
-    public List<AddressComponent> getAddressComponents() {
-        return addressComponents;
-    }
-
-    public void setAddressComponents(List<AddressComponent> addressComponents) {
-        this.addressComponents = addressComponents;
-    }
-
-    public String getFormattedAddress() {
-        return formattedAddress;
-    }
-
-    public void setFormattedAddress(String formattedAddress) {
-        this.formattedAddress = formattedAddress;
-    }
+    private Integer userRatingsTotal;
+    @SerializedName("vicinity")
+    @Expose
+    private String vicinity;
+    @SerializedName("opening_hours")
+    @Expose
+    private OpeningHours openingHours;
+    @SerializedName("price_level")
+    @Expose
+    private Integer priceLevel;
 
     public Geometry getGeometry() {
         return geometry;
@@ -49,6 +59,38 @@ public class Result {
 
     public void setGeometry(Geometry geometry) {
         this.geometry = geometry;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Photo> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
     }
 
     public String getPlaceId() {
@@ -59,6 +101,38 @@ public class Result {
         this.placeId = placeId;
     }
 
+    public PlusCode getPlusCode() {
+        return plusCode;
+    }
+
+    public void setPlusCode(PlusCode plusCode) {
+        this.plusCode = plusCode;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
+
     public List<String> getTypes() {
         return types;
     }
@@ -67,12 +141,36 @@ public class Result {
         this.types = types;
     }
 
-    public List<String> getPostcodeLocalities() {
-        return postcodeLocalities;
+    public Integer getUserRatingsTotal() {
+        return userRatingsTotal;
     }
 
-    public void setPostcodeLocalities(List<String> postcodeLocalities) {
-        this.postcodeLocalities = postcodeLocalities;
+    public void setUserRatingsTotal(Integer userRatingsTotal) {
+        this.userRatingsTotal = userRatingsTotal;
+    }
+
+    public String getVicinity() {
+        return vicinity;
+    }
+
+    public void setVicinity(String vicinity) {
+        this.vicinity = vicinity;
+    }
+
+    public OpeningHours getOpeningHours() {
+        return openingHours;
+    }
+
+    public void setOpeningHours(OpeningHours openingHours) {
+        this.openingHours = openingHours;
+    }
+
+    public Integer getPriceLevel() {
+        return priceLevel;
+    }
+
+    public void setPriceLevel(Integer priceLevel) {
+        this.priceLevel = priceLevel;
     }
 
 }

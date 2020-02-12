@@ -2,13 +2,12 @@ package com.example.android.myfavlocalesapp.model;
 
 public class User {
     private String userName;
-    private String userPic;
-    private String emailAddress;
-    private String password;
+    private String userEmail;
+    private String userPassword;
 
-    public User(String emailAddress, String password) {
-        this.emailAddress = emailAddress;
-        this.password = password;
+    public User(String userEmail, String userPassword) {
+        this.userEmail = userEmail;
+        this.userPassword = userPassword;
     }
 
     public String getUserName() {
@@ -19,27 +18,19 @@ public class User {
         this.userName = userName;
     }
 
-    public String getUserPic() {
-        return userPic;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUserPic(String userPic) {
-        this.userPic = userPic;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
-    public String getEmailAddress() {
-        return emailAddress;
+    public String getUserPassword() {
+        return userPassword;
     }
 
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
     }
 }

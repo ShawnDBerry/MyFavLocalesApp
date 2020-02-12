@@ -8,24 +8,24 @@ public class Viewport {
 
     @SerializedName("northeast")
     @Expose
-    private Northeast_ northeast;
+    private Northeast northeast;
     @SerializedName("southwest")
     @Expose
-    private Southwest_ southwest;
+    private Southwest southwest;
 
-    public Northeast_ getNortheast() {
+    public Northeast getNortheast() {
         return northeast;
     }
 
-    public void setNortheast(Northeast_ northeast) {
+    public void setNortheast(Northeast northeast) {
         this.northeast = northeast;
     }
 
-    public Southwest_ getSouthwest() {
+    public Southwest getSouthwest() {
         return southwest;
     }
 
-    public void setSouthwest(Southwest_ southwest) {
+    public void setSouthwest(Southwest southwest) {
         this.southwest = southwest;
     }
 

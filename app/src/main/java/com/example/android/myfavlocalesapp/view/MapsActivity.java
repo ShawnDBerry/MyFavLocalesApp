@@ -20,10 +20,12 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.myfavlocalesapp.R;
-import com.example.android.myfavlocalesapp.model.Location;
-import com.example.android.myfavlocalesapp.model.PlacesResponse;
+import com.example.android.myfavlocalesapp.adapter.PoiAdapter;
+import com.example.android.myfavlocalesapp.model.GoogleLocation;
 import com.example.android.myfavlocalesapp.model.Result;
 import com.example.android.myfavlocalesapp.model.User;
 import com.example.android.myfavlocalesapp.network.PlacesRetrofit;
@@ -43,6 +45,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -57,10 +61,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     public static final int REQUEST_CODE = 205;
-    private Observer<Location> myObserver;
+    private Observer<GoogleLocation> myObserver;
     private PlacesRetrofit placesRetrofit;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
+    //List<Result> results = new ArrayList<>();
+
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private LocationViewModel locationViewModel;
     private LoginFragment loginFragment = new LoginFragment();
 
@@ -70,6 +76,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @BindView(R.id.menu_icon)
     ImageView menuImageView;
 
+    @BindView(R.id.poi_recyclerview)
+    RecyclerView poiRecyclerView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,8 +130,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void signUpNewUser(User signUpUser) {
-        firebaseAuth.createUserWithEmailAndPassword(signUpUser.getEmailAddress(),
-                signUpUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        firebaseAuth.createUserWithEmailAndPassword(signUpUser.getUserEmail(),
+                signUpUser.getUserPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
@@ -157,7 +165,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void loginUser(User loginUser) {
         firebaseAuth.signInWithEmailAndPassword(
-                loginUser.getEmailAddress(), loginUser.getPassword())
+                loginUser.getUserEmail(), loginUser.getUserPassword())
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -234,10 +242,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String latLng = lat + "," + lng;
                 switch (item.getItemId()) {
                     case R.id.food:
+                        mMap.clear();
                         searchPlaceOfInterest(item, latLng);
                     case R.id.hospitals:
+                        mMap.clear();
                         searchPlaceOfInterest(item, latLng);
                     case R.id.churches:
+                        mMap.clear();
                         searchPlaceOfInterest(item, latLng);
                 }
 
@@ -253,44 +264,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                new Consumer<PlacesResponse>() {
+                                new Consumer<GoogleLocation>() {
                                     @Override
-                                    public void accept(PlacesResponse placesResponse) throws Exception {
+                                    public void accept(GoogleLocation googleLocation) throws Exception {
 
 
                                         Gson gson = new Gson();
-                                        String response = gson.toJson(placesResponse);
+                                        String response = gson.toJson(googleLocation);
 
-                                        for (Result r : placesResponse.getResults()) {
-                                            double lat = r.getGeometry().getLocation().getLat();
-                                            double lng = r.getGeometry().getLocation().getLng();
+                                        for (Result r : googleLocation.getResults()) {
+                                            double lat = r.getGeometry().getViewport().getNortheast().getLat();
+                                            double lng = r.getGeometry().getViewport().getNortheast().getLng();
                                             LatLng location = new LatLng(lat, lng);
-
                                             mMap.addMarker(
                                                     new MarkerOptions()
                                                             .position(location)
-                                                            .title(r.getPlaceId())
+                                                            .title(r.getName())
                                             );
                                         }
 
+                                        setUpRv(googleLocation.getResults());
+
+
                                         Log.d("TAG_Y", response);
 
-                                        Log.d("TAG_X", "Places received : " + placesResponse.getResults().size());
+                                        Log.d("TAG_X", "Places received : " + googleLocation.getResults().size());
                                     }
                                 }
                         ));
     }
 
-   /* void setUpRv(List<Loca> results){
-        MovieAdapter movieAdapter = new MovieAdapter(results, this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
-        movieSeachRecyclerView.setAdapter(movieAdapter);
-        movieSeachRecyclerView.setLayoutManager(layoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(movieSeachRecyclerView.getContext(),
+    void setUpRv(List<Result> results){
+        PoiAdapter poiAdapter = new PoiAdapter(results);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(MapsActivity.this, RecyclerView.HORIZONTAL, false);
+        LinearSnapHelper helper = new LinearSnapHelper();
+        poiRecyclerView.setAdapter(poiAdapter);
+        poiRecyclerView.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(poiRecyclerView.getContext(),
                 layoutManager.getOrientation());
-        movieSeachRecyclerView.addItemDecoration(dividerItemDecoration);
+        poiRecyclerView.setOnFlingListener(null);
+        helper.attachToRecyclerView(poiRecyclerView);
+        poiRecyclerView.addItemDecoration(dividerItemDecoration);
     }
-*/
 
     private void setUpLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
